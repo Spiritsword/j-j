@@ -116,15 +116,14 @@ class SceneMain extends Phaser.Scene {
 */
 
     function promptClicks() {
-      if (firstClick == false) {
-        setTimeout(() => {
-          console.log('noClickYet');
+      setTimeout(() => {
+        console.log('noClickYet');
+        if (firstClick == false) {
           makeRandomMove();
           drawGridWithHoles();
           promptClicks();
-        }, 3000);
-        return;
-      }
+        }
+      }, 3000);
       return;
     }
 
