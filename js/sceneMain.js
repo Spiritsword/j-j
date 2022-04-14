@@ -35,6 +35,7 @@ class SceneMain extends Phaser.Scene {
     var jBlockAtLocation = [];
     var previousLocation = 4;
     var blankLocationVar = 4;
+    var firstClick = false;
     const BLOCKDISPLAYWIDTH = 100;
     const BLOCKDISPLAYHEIGHT = 100;
     const XSHIFT = 30;
@@ -96,6 +97,8 @@ class SceneMain extends Phaser.Scene {
     );
     finalText.alpha = 0;
 
+    promptClicks();
+
     // Define helper functions.
     /*
     function unfade(element) {
@@ -111,6 +114,20 @@ class SceneMain extends Phaser.Scene {
       }, 10);
     }
 */
+
+    function promptClicks() {
+      if (firstClick == false) {
+        setTimeout(() => {
+          console.log('noClickYet');
+          makeRandomMove();
+          drawGridWithHoles();
+          promptClicks();
+        }, 3000);
+        return;
+      }
+      return;
+    }
+
     function makeRandomMove() {
       var possibleLocations = neighbouringLocations(blankLocationVar);
       var numberOfNeighbours = possibleLocations.length;
@@ -227,6 +244,7 @@ class SceneMain extends Phaser.Scene {
       //    console.log('block.location =' + block.location);
       //    console.log('possibleMoves =' + possibleMoves);
       //      console.log(possibleMoves);
+      firstClick = true;
       for (i = 0; i < possibleMoves.length; i++) {
         if (blockAtLocation[possibleMoves[i]] === 'blank') {
           moveBlock(block.location, possibleMoves[i]);
