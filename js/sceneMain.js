@@ -5,7 +5,7 @@ class SceneMain extends Phaser.Scene {
   preload() {
     //Each number from 1 to 8 represents a moveable square/block and it's (single) sprite image corresponds to that number image in the spritesheet.
     //Load the spritesheet into 'blocks' sprite.
-    this.load.spritesheet('blocks', 'images/JSHv4.png', {
+    this.load.spritesheet('blocks', 'images/JSHv5.png', {
       frameWidth: 100,
       frameHeight: 100,
     });
@@ -13,6 +13,13 @@ class SceneMain extends Phaser.Scene {
       frameWidth: 100,
       frameHeight: 100,
     });
+    this.load.spritesheet('bBlocks', 'images/JSHBv5.png', {
+      frameWidth: 100,
+      frameHeight: 100,
+    });
+    this.load.image('vLine', 'images/VL.png');
+    this.load.image('hLine', 'images/HL.png');
+    this.load.image('background', 'images/LBS.png');
   }
   /*
   game.add.tileSprite(0, 0, 800, 600, 'space');
@@ -32,14 +39,20 @@ class SceneMain extends Phaser.Scene {
     //the location of the blank ("empty block") is initally in the centre of the 3x3 space - code = 4. (The location codes are counted from zero to 8 right to left and then top to bottom on the grid.)
 
     var blockAtLocation = [];
+    var brightBlockArray = [];
     var jBlockAtLocation = [];
     var previousLocation = 4;
     var blankLocationVar = 4;
     var firstClick = false;
+    var background = this.add.image(0, 0, 'background');
+    var brightness = false;
+
     const BLOCKDISPLAYWIDTH = 100;
     const BLOCKDISPLAYHEIGHT = 100;
     const XSHIFT = 30;
     const YSHIFT = 130;
+    background.x = XSHIFT + 150;
+    background.y = YSHIFT + 150;
 
     //When a game object (i.e. one of the squares) is clicked on, try to move it. (It will move to the space, if it neighbours it.)
     this.input.on('gameobjectdown', tryMoveBlock, this);
@@ -68,6 +81,22 @@ class SceneMain extends Phaser.Scene {
     }
 
     for (var i = 0; i < 9; i++) {
+      if (i == 4) {
+        blockAtLocation[i] = 'blank';
+      } else {
+        var currentBBlock = this.add.image(0, 0, 'bBlocks');
+        currentBBlock.displayWidth = BLOCKDISPLAYWIDTH;
+        currentBBlock.displayHeight = BLOCKDISPLAYHEIGHT;
+        brightBlockArray[i] = currentBBlock;
+        if (i > 4) {
+          currentBBlock.setFrame(i - 1);
+        } else {
+          currentBBlock.setFrame(i);
+        }
+      }
+    }
+
+    for (var i = 0; i < 9; i++) {
       var currentJBlock = this.add.image(0, 0, 'jBlocks');
       currentJBlock.alpha = 0;
       currentJBlock.displayWidth = BLOCKDISPLAYWIDTH;
@@ -88,6 +117,12 @@ class SceneMain extends Phaser.Scene {
     }
 
     drawGridWithHoles();
+    var vLine1 = this.add.image(0, 0, 'vLine');
+    var vLine2 = this.add.image(0, 0, 'vLine');
+    var hLine1 = this.add.image(0, 0, 'hLine');
+    var hLine2 = this.add.image(0, 0, 'hLine');
+    drawGridLines();
+
     var style = { font: '25px Arial', fill: '#f7f890', align: 'center' };
     var finalText = this.add.text(
       30,
@@ -97,7 +132,8 @@ class SceneMain extends Phaser.Scene {
     );
     finalText.alpha = 0;
 
-    promptClicks();
+    brightenBlocks();
+    flashBlock(selectMoveBlock());
 
     // Define helper functions.
     /*
@@ -115,16 +151,63 @@ class SceneMain extends Phaser.Scene {
     }
 */
 
-    function promptClicks() {
+    function flashBlock(block) {
+      i = block.number;
+      var bBlock = brightBlockArray[i];
+      bBlock.x = block.x;
+      bBlock.y = block.y;
+      flashBlockHelper(bBlock);
+    }
+
+    function flashBlockHelper(brightBlock) {
       setTimeout(() => {
-        console.log('noClickYet');
         if (firstClick == false) {
-          makeRandomMove();
-          drawGridWithHoles();
-          promptClicks();
+          if (brightBlock.alpha == 0) {
+            brightBlock.alpha = 1;
+          } else {
+            brightBlock.alpha = 0;
+          }
+          flashBlockHelper(brightBlock);
+        } else {
+          brightBlock.alpha = 0;
         }
-      }, 3000);
+      }, 500);
       return;
+    }
+
+    function brightenBlocks() {
+      for (var i = 0; i < 9; i++) {
+        var block;
+        var brightBlock;
+        if (i != blankLocationVar) {
+          block = blockAtLocation[i];
+          brightBlock = brightBlockArray[block.number];
+        } else {
+          continue;
+        }
+        if (i == 4) {
+          brightBlock.alpha = 0;
+          continue;
+        }
+        brightBlock.x = block.x;
+        brightBlock.y = block.y;
+        if (block.number == i) {
+          brightBlock.alpha = 1;
+          console.log(i + ' is bright');
+        } else {
+          brightBlock.alpha = 0;
+          console.log(i + ' is dim');
+        }
+      }
+    }
+
+    function selectMoveBlock() {
+      var possibleLocations = neighbouringLocations(blankLocationVar);
+      var numberOfNeighbours = possibleLocations.length;
+      var arrayElement = Phaser.Math.Between(0, numberOfNeighbours - 1);
+      var selectedBlockLocation = possibleLocations[arrayElement];
+      var selectedBlock = blockAtLocation[selectedBlockLocation];
+      return selectedBlock;
     }
 
     function makeRandomMove() {
@@ -191,7 +274,18 @@ class SceneMain extends Phaser.Scene {
 
     //Drawing the initial arrangement
     //Each game object assigned its physical 2D location: location attribute is initialised for each block (as this is the array that will be needed when player moves the blocks, rather than the blockAtLocation array)
-    //TO DO...
+
+    function drawGridLines() {
+      vLine1.x = XSHIFT + 100;
+      vLine1.y = YSHIFT + 150;
+      vLine2.x = XSHIFT + 200;
+      vLine2.y = YSHIFT + 150;
+      hLine1.x = XSHIFT + 150;
+      hLine1.y = YSHIFT + 100;
+      hLine2.x = XSHIFT + 150;
+      hLine2.y = YSHIFT + 200;
+    }
+
     function drawGridWithHoles() {
       var k = 0;
       var xx = XSHIFT;
@@ -248,6 +342,8 @@ class SceneMain extends Phaser.Scene {
         if (blockAtLocation[possibleMoves[i]] === 'blank') {
           moveBlock(block.location, possibleMoves[i]);
           drawGridWithHoles();
+          brightenBlocks();
+          drawGridLines();
           if (isFinished()) {
             console.log('Finished!');
             endLoop();
@@ -299,6 +395,7 @@ class SceneMain extends Phaser.Scene {
 
     function fadeJesusIn() {
       drawGridWithJesus();
+      drawGridLines();
       for (i = 0; i < 9; i++) {
         /*        this.add
           .tween(jBlockAtLocation[i])
