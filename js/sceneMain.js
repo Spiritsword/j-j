@@ -55,7 +55,7 @@ class SceneMain extends Phaser.Scene {
     background.y = YSHIFT + 150;
 
     //When a game object (i.e. one of the squares) is clicked on, try to move it. (It will move to the space, if it neighbours it.)
-    this.input.on('gameobjectdown', tryMoveBlock, this);
+    this.input.on('gameobjectdown', clickHandler, this);
 
     //Initialising arrays
     //Each block is created, added in to blocks and assigned its preliminary position in the grid, matching the solution state.
@@ -132,8 +132,14 @@ class SceneMain extends Phaser.Scene {
     );
     finalText.alpha = 0;
 
+    var style = { font: '25px Arial', fill: '#f7f890', align: 'center' };
+    var linkText = this.add.text(40, 560, 'Click here for more info.', style);
+    console.log('linkText = ' + linkText);
+    linkText.alpha = 0;
+    linkText.disableInteractive();
     brightenBlocks();
     flashBlock(selectMoveBlock());
+    linkText.addListener('pointerover', makeBlue);
 
     // Define helper functions.
     /*
@@ -330,6 +336,14 @@ class SceneMain extends Phaser.Scene {
       }
     }
 
+    function clickHandler(pointer, object) {
+      if (object === linkText) {
+        window.location.replace('tract.html');
+      } else {
+        tryMoveBlock(pointer, object);
+      }
+    }
+
     function tryMoveBlock(pointer, block) {
       //      var neighbouringSpace;
       //      console.log(block, block.location);
@@ -373,10 +387,17 @@ class SceneMain extends Phaser.Scene {
       freezeBlocks();
       console.log('Starting setTimeout');
       setTimeout(() => {
-        console.log('Waited');
+        console.log('Waited2');
+        console.log('Waited3');
         fadeJesusIn();
+        console.log('JesusFadingIn');
         setTimeout(() => {
+          console.log('addedFinal');
           addFinalText();
+          setTimeout(() => {
+            console.log('addedLink');
+            addLinkText();
+          }, 2000);
         }, 3500);
       }, 1000);
       console.log('Finished setTimeout');
@@ -394,7 +415,9 @@ class SceneMain extends Phaser.Scene {
     }
 
     function fadeJesusIn() {
+      console.log('Drawing Grid with Jesus');
       drawGridWithJesus();
+      console.log('Drawing Grid Lines');
       drawGridLines();
       for (i = 0; i < 9; i++) {
         /*        this.add
@@ -410,6 +433,7 @@ class SceneMain extends Phaser.Scene {
           );
 */
         //        unfade(jBlockAtLocation[i]);
+        console.log('Fading in jBlock at location' + i);
         fadeIn(jBlockAtLocation[i], 0);
       }
     }
@@ -427,10 +451,91 @@ class SceneMain extends Phaser.Scene {
     function addFinalText() {
       fadeIn(finalText, 0);
     }
+
+    function addLinkText() {
+      fadeIn(linkText, 0);
+      linkText.setInteractive();
+      console.log('linkText is interactive');
+    }
+    function makeBlue() {
+      linkText.setFill('#5960C2');
+    }
   }
 }
 
+/* LINK DRAWING
+
+var canvas = document.getElementById("myCanvas");
+var ctx;
+var linkText="https://stackoverflow.com";
+var linkX=5;
+var linkY=15;
+var linkHeight=10;
+var linkWidth;
+var inLink = false;
+
+// draw the balls on the canvas
+function draw(){
+  canvas = document.getElementById("myCanvas");
+  // check if supported
+  if(canvas.getContext){
+  
+    ctx=canvas.getContext("2d");
+    
+    //clear canvas
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    //draw the link
+    ctx.font='10px sans-serif';
+    ctx.fillStyle = "#0000ff";
+    ctx.fillText(linkText,linkX,linkY);
+    linkWidth=ctx.measureText(linkText).width;
+    
+    //add mouse listeners
+    canvas.addEventListener("mousemove", on_mousemove, false);
+    canvas.addEventListener("click", on_click, false);
+
+  }
+}
+
+//check if the mouse is over the link and change cursor style
+function on_mousemove (ev) {
+  var x, y;
+
+  // Get the mouse position relative to the canvas element.
+  if (ev.layerX || ev.layerX == 0) { //for firefox
+    x = ev.layerX;
+    y = ev.layerY;
+  }
+  x-=canvas.offsetLeft;
+  y-=canvas.offsetTop;
+  
+  //is the mouse over the link?
+  if(x>=linkX && x <= (linkX + linkWidth) && y<=linkY && y>= (linkY-linkHeight)){
+      document.body.style.cursor = "pointer";
+      inLink=true;
+  }
+  else{
+      document.body.style.cursor = "";
+      inLink=false;
+  }
+}
+
+//if the link has been clicked, go to link
+function on_click(e) {
+  if (inLink)  {
+    window.location = linkText;
+  }
+}
+
+<body onload="draw()">
+<canvas id="myCanvas" width="200" height="200" style="border-style:solid;border-width:1px">Canvas not supported.</canvas>
+</body>
+
+*/
+
 /*
+
 OBSOLETE CODE
 
 Random Initialisation:
