@@ -132,6 +132,20 @@ class SceneMain extends Phaser.Scene {
     );
     finalText.alpha = 0;
 
+    /*
+    let tractLink = document.createElement('a');
+    document.body.appendChild(tractLink);
+    tractLink.classList.add('tlink');
+    console.log('tractLink classList = ' + tractLink.classList);
+    tractLink.href = 'tract.html';
+    tractLink.text = 'Click HERE for more info.';
+    tractLink.style.visibility = 'hidden';
+
+    brightenBlocks();
+    flashBlock(selectMoveBlock());
+
+*/
+
     var style = { font: '25px Arial', fill: '#f7f890', align: 'center' };
     var linkText = this.add.text(40, 560, 'Click here for more info.', style);
     console.log('linkText = ' + linkText);
@@ -139,7 +153,7 @@ class SceneMain extends Phaser.Scene {
     linkText.disableInteractive();
     brightenBlocks();
     flashBlock(selectMoveBlock());
-    linkText.addListener('pointerover', makeBlue);
+    linkText.addListener('pointerover', makePurple);
 
     // Define helper functions.
     /*
@@ -457,9 +471,16 @@ class SceneMain extends Phaser.Scene {
       linkText.setInteractive();
       console.log('linkText is interactive');
     }
-    function makeBlue() {
-      linkText.setFill('#5960C2');
+    function makePurple() {
+      linkText.setFill('#830a9e');
     }
+
+    /*
+    function addLinkText() {
+      tractLink.style.visibility = 'visible';
+      fadeIn(tractLink, 0);
+    }
+*/
   }
 }
 
